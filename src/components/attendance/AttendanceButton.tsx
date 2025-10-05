@@ -277,7 +277,7 @@ const AttendanceButton: React.FC = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-0 md:relative md:inset-auto bg-white dark:bg-gray-900 md:max-w-5xl md:max-h-[85vh] md:rounded-2xl shadow-2xl border-0 md:border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col z-[10000]"
+              className="... flex flex-col z-[10000] overflow-y-auto md:overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
               {/* כותרת החלון */}
