@@ -241,7 +241,12 @@ const AttendanceButton: React.FC = () => {
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          setShowModal(true);
+          if (user?.id) {
+            fetchUserRecords(user.id);
+          }
+        }}
         className={`w-10 h-10 rounded-xl shadow-md flex items-center justify-center haptic-light ${
           currentSession
             ? 'bg-gradient-to-br from-red-500 to-red-600 text-white'
