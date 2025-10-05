@@ -5,22 +5,20 @@ import { LeadModel } from '../models/Lead.js';
 import { authenticateToken } from '../middleware/auth.js';
 // Israel timezone functions (inline to avoid import issues)
 function isIsraelDST(date) {
-    const month = date.getMonth(); // 0=Jan, 8=Sep, 9=Oct
-    return month >= 3 && month <= 8; // April-September = summer (UTC+3)
+    return true; // Always use summer time (GMT+3) for simplicity
 }
 function israelTimeToUtc(israelDate) {
-    const offset = isIsraelDST(israelDate) ? 3 : 2;
+    const offset = 3; // Always GMT+3 for simplicity
     return new Date(israelDate.getTime() - (offset * 60 * 60 * 1000));
 }
 function logTimezoneInfo(label, utcTime) {
-    const offset = isIsraelDST(utcTime) ? 3 : 2;
+    const offset = 3; // Always GMT+3 for simplicity
     const israelTime = new Date(utcTime.getTime() + (offset * 60 * 60 * 1000));
-    const isDST = isIsraelDST(utcTime);
     console.log(`🕐 ${label}:`, {
         UTC: utcTime.toISOString(),
         Israel: israelTime.toLocaleString('he-IL'),
         Offset: `UTC+${offset}`,
-        Season: isDST ? 'Summer (IDT)' : 'Winter (IST)'
+        Season: 'GMT+3 (Fixed)'
     });
 }
 const router = express.Router();
@@ -164,7 +162,7 @@ router.post('/', authenticateToken, async (req, res) => {
             callback_date: req.body.callbackDate || req.body.callback_date,
             callback_time: req.body.callbackTime || req.body.callback_time,
             assigned_to: parseInt(req.body.assigned_to) || req.user.id,
-            client_id: req.user.client_id || null
+            client_id: req.user.client_id || undefined
         };
         const lead = await LeadModel.create(leadData);
         // Create unified event if callback date and time are provided
@@ -172,13 +170,29 @@ router.post('/', authenticateToken, async (req, res) => {
             try {
                 const { UnifiedEventModel } = await import('../models/UnifiedEvent.js');
                 // Parse the input as Israel time and convert to UTC
-                // Input: "2025-09-22" and "23:47" -> should create event at 23:47 Israel time
+                // Input: "2025-09-28" and "21:03" -> should create event at 21:03 Israel time
                 const israelDateTimeStr = `${leadData.callback_date}T${leadData.callback_time}:00`;
-                const israelDate = new Date(israelDateTimeStr);
-                logTimezoneInfo('Israel callback time input (Create)', israelDate);
-                // Convert to UTC using smart timezone function
-                const utcDate = israelTimeToUtc(israelDate);
+                // Parse the date and time components manually to avoid timezone issues
+                const [datePart, timePart] = israelDateTimeStr.split('T');
+                const [year, month, day] = datePart.split('-').map(Number);
+                const [hours, minutes] = timePart.split(':').map(Number);
+                // Create a proper Israel time date (month is 0-based in JavaScript)
+                const properIsraelDate = new Date(year, month - 1, day, hours, minutes);
+                console.log('🔍 Input from user:', {
+                    date: leadData.callback_date,
+                    time: leadData.callback_time,
+                    israelDateTime: properIsraelDate.toLocaleString('he-IL'),
+                    israelISO: properIsraelDate.toISOString()
+                });
+                // Convert to UTC using GMT+3 offset
+                const utcDate = israelTimeToUtc(properIsraelDate);
                 const start_time = utcDate.toISOString();
+                console.log('🔄 Conversion to UTC:', {
+                    israelTime: properIsraelDate.toLocaleString('he-IL'),
+                    utcTime: utcDate.toLocaleString('he-IL'),
+                    utcISO: utcDate.toISOString(),
+                    storedAs: start_time
+                });
                 const endDate = new Date(utcDate.getTime() + (30 * 60 * 1000)); // 30 minutes later
                 const end_time = endDate.toISOString();
                 logTimezoneInfo('UTC start time for storage (Create)', utcDate);
@@ -189,14 +203,14 @@ router.post('/', authenticateToken, async (req, res) => {
                     eventType: 'reminder',
                     startTime: start_time,
                     endTime: end_time,
-                    advanceNotice: 5, // 5 minutes advance notice for immediate testing
+                    advanceNotice: 15, // 15 minutes advance notice for callback reminders
                     isActive: true,
                     notified: false,
                     customerName: leadData.name, // Set customer name for better notifications
                     leadId: lead.id
                 };
                 await UnifiedEventModel.createEventFromLead(req.user.id, eventData);
-                console.log(`✅ Created unified event for lead ${lead.id} - Israel time: ${israelDate.toLocaleString('he-IL')}, UTC: ${start_time}`);
+                console.log(`✅ Created unified event for lead ${lead.id} - Israel time: ${properIsraelDate.toLocaleString('he-IL')}, UTC: ${start_time}`);
             }
             catch (eventError) {
                 console.error('❌ Error creating unified event for lead callback:', eventError);
@@ -309,7 +323,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
                         eventType: 'reminder',
                         startTime: start_time,
                         endTime: end_time,
-                        advanceNotice: 5, // 5 minutes advance notice for immediate testing
+                        advanceNotice: 15, // 15 minutes advance notice for callback reminders
                         isActive: true,
                         notified: false,
                         customerName: lead.name,
@@ -646,7 +660,7 @@ router.post('/import/excel', authenticateToken, upload.single('file'), async (re
         const leadsDataWithUser = leadsData.map(lead => ({
             ...lead,
             assigned_to: req.user.id,
-            client_id: req.user.client_id || null
+            client_id: req.user.client_id || undefined
         }));
         const importedLeads = await LeadModel.createBulk(leadsDataWithUser);
         // Create unified events for leads with follow-up dates

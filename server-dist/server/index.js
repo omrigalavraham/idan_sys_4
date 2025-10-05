@@ -4,8 +4,9 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import compression from 'compression';
 import dotenv from 'dotenv';
-import { validateInput, securityHeaders, preventHPP, corsOptions, addRequestId, logSecurityEvent } from './middleware/security.js';
-import { testConnection, initializeDatabase, closePool } from './database/connection.js';
+import { validateInput, securityHeaders, preventHPP, corsOptions, addRequestId, logSecurityEvent, } from './middleware/security.js';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { testConnection, initializeDatabase, closePool, } from './database/connection.js';
 import authRoutes from './routes/auth.js';
 import leadsRoutes from './routes/leads.js';
 import tasksRoutes from './routes/tasks.js';
@@ -58,6 +59,8 @@ app.use('/api/customers', customersRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/cleanup', cleanupRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+// Add unified events routes immediately (not dependent on database initialization)
+app.use('/api/unified-events', createUnifiedEventsRoutes());
 // API placeholder route
 app.get('/api/hello', (_req, res) => {
     res.json({ message: 'API is running' });
@@ -71,11 +74,10 @@ app.get('*', (req, res, next) => {
         return next();
     res.sendFile(path.join(distPath, 'index.html'));
 });
-// Basic error handler
-app.use((err, req, res, next) => {
-    console.error('Server error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-});
+// 404 handler
+app.use(notFound);
+// Error handler
+app.use(errorHandler);
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0'; // Listen on all interfaces
 // Initialize database and start server
@@ -89,8 +91,7 @@ const startServer = async () => {
         }
         // Initialize database schema
         await initializeDatabase();
-        // Add unified events routes after database initialization
-        app.use('/api/unified-events', createUnifiedEventsRoutes());
+        // Unified events routes are already registered above
         // Start cleanup jobs
         CleanupJobs.start();
         // Start server

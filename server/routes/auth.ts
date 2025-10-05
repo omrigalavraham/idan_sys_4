@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { UserModel, CreateUserData, LoginData } from '../models/User.js';
 import { SessionModel, CreateSessionData } from '../models/Session.js';
 import { SystemClientModel } from '../models/SystemClient.js';
-import { validateInput, authRateLimiter } from '../middleware/security.js';
+import { validateInput, rateLimiter } from '../middleware/security.js';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 
@@ -22,7 +22,7 @@ const loginSchema = z.object({
 });
 
 // Register new user
-router.post('/register', authRateLimiter, validateInput, async (req: Request, res: Response) => {
+router.post('/register', rateLimiter, validateInput, async (req: Request, res: Response) => {
   try {
     // Validate input
     const validatedData = registerSchema.parse(req.body);
@@ -87,7 +87,7 @@ router.post('/register', authRateLimiter, validateInput, async (req: Request, re
 });
 
 // Login user
-router.post('/login', authRateLimiter, validateInput, async (req: Request, res: Response) => {
+router.post('/login', rateLimiter, validateInput, async (req: Request, res: Response) => {
   try {
     // Validate input
     const validatedData = loginSchema.parse(req.body);

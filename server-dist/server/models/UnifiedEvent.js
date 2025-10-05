@@ -4,13 +4,13 @@ export class UnifiedEventModel {
     static async getEventsByUser(userId) {
         console.log('🔍 Model: getEventsByUser called with userId:', userId, 'type:', typeof userId);
         const result = await query(`
-      SELECT 
+      SELECT
         id,
         title,
         description,
         event_type as "eventType",
-        TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice",
         is_active as "isActive",
         notified,
@@ -21,30 +21,32 @@ export class UnifiedEventModel {
         created_by as "createdBy",
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM unified_events 
+      FROM unified_events
       WHERE created_by = $1
       ORDER BY start_time ASC
     `, [userId]);
         console.log('🔍 Model: getEventsByUser result:', result.rows.length, 'events');
         console.log('🔍 Model: Raw query result:', result.rows);
-        // Return events with properly formatted times
+        // Return events with properly formatted times (as ISO strings)
         const events = result.rows.map((row) => ({
             ...row,
-            createdAt: row.createdAt ? row.createdAt.toString() : null,
-            updatedAt: row.updatedAt ? row.updatedAt.toString() : null
+            startTime: row.startTime instanceof Date ? row.startTime.toISOString() : row.startTime,
+            endTime: row.endTime instanceof Date ? row.endTime.toISOString() : row.endTime,
+            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+            updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt
         }));
         return events;
     }
     // Get events by type (reminder, meeting, lead, task)
     static async getEventsByType(userId, eventType) {
         const result = await query(`
-      SELECT 
+      SELECT
         id,
         title,
         description,
         event_type as "eventType",
-        TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice",
         is_active as "isActive",
         notified,
@@ -55,28 +57,30 @@ export class UnifiedEventModel {
         created_by as "createdBy",
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM unified_events 
+      FROM unified_events
       WHERE created_by = $1 AND event_type = $2
       ORDER BY start_time ASC
     `, [userId, eventType]);
-        // Return events with properly formatted times
+        // Return events with properly formatted times (as ISO strings)
         const events = result.rows.map((row) => ({
             ...row,
-            createdAt: row.createdAt ? row.createdAt.toString() : null,
-            updatedAt: row.updatedAt ? row.updatedAt.toString() : null
+            startTime: row.startTime instanceof Date ? row.startTime.toISOString() : row.startTime,
+            endTime: row.endTime instanceof Date ? row.endTime.toISOString() : row.endTime,
+            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+            updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt
         }));
         return events;
     }
     // Get events by date range
     static async getEventsByDateRange(userId, startDate, endDate) {
         const result = await query(`
-      SELECT 
+      SELECT
         id,
         title,
         description,
         event_type as "eventType",
-        TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice",
         is_active as "isActive",
         notified,
@@ -87,30 +91,32 @@ export class UnifiedEventModel {
         created_by as "createdBy",
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM unified_events 
-      WHERE created_by = $1 
-        AND start_time >= $2 
+      FROM unified_events
+      WHERE created_by = $1
+        AND start_time >= $2
         AND start_time <= $3
       ORDER BY start_time ASC
     `, [userId, startDate, endDate]);
-        // Return events with properly formatted times
+        // Return events with properly formatted times (as ISO strings)
         const events = result.rows.map((row) => ({
             ...row,
-            createdAt: row.createdAt ? row.createdAt.toString() : null,
-            updatedAt: row.updatedAt ? row.updatedAt.toString() : null
+            startTime: row.startTime instanceof Date ? row.startTime.toISOString() : row.startTime,
+            endTime: row.endTime instanceof Date ? row.endTime.toISOString() : row.endTime,
+            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+            updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt
         }));
         return events;
     }
     // Get events that need notifications (for reminders)
     static async getEventsForNotification(userId) {
         const result = await query(`
-      SELECT 
+      SELECT
         id,
         title,
         description,
         event_type as "eventType",
-        TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice",
         is_active as "isActive",
         notified,
@@ -121,19 +127,21 @@ export class UnifiedEventModel {
         created_by as "createdBy",
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM unified_events 
-      WHERE created_by = $1 
+      FROM unified_events
+      WHERE created_by = $1
         AND event_type = 'reminder'
         AND is_active = true
         AND notified = false
         AND advance_notice > 0
       ORDER BY start_time ASC
     `, [userId]);
-        // Return events with properly formatted times
+        // Return events with properly formatted times (as ISO strings)
         const events = result.rows.map((row) => ({
             ...row,
-            createdAt: row.createdAt ? row.createdAt.toString() : null,
-            updatedAt: row.updatedAt ? row.updatedAt.toString() : null
+            startTime: row.startTime instanceof Date ? row.startTime.toISOString() : row.startTime,
+            endTime: row.endTime instanceof Date ? row.endTime.toISOString() : row.endTime,
+            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+            updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt
         }));
         return events;
     }
@@ -149,10 +157,10 @@ export class UnifiedEventModel {
         lead_id, task_id, created_by
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
-      ) RETURNING 
+      ) RETURNING
         id, title, description, event_type as "eventType",
-TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice", is_active as "isActive",
         notified, customer_id as "customerId", customer_name as "customerName",
         lead_id as "leadId", task_id as "taskId", created_by as "createdBy",
@@ -172,12 +180,14 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
             eventData.taskId || null,
             userId
         ]);
-        // Return event with properly formatted times
+        // Return event with properly formatted times (as ISO strings)
         const event = result.rows[0];
         return {
             ...event,
-            createdAt: event.createdAt ? event.createdAt.toString() : null,
-            updatedAt: event.updatedAt ? event.updatedAt.toString() : null
+            startTime: event.startTime instanceof Date ? event.startTime.toISOString() : event.startTime,
+            endTime: event.endTime instanceof Date ? event.endTime.toISOString() : event.endTime,
+            createdAt: event.createdAt instanceof Date ? event.createdAt.toISOString() : event.createdAt,
+            updatedAt: event.updatedAt instanceof Date ? event.updatedAt.toISOString() : event.updatedAt
         };
     }
     // Create new event from lead (special function for leads)
@@ -192,10 +202,10 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
         lead_id, task_id, created_by
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
-      ) RETURNING 
+      ) RETURNING
         id, title, description, event_type as "eventType",
-        TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice", is_active as "isActive",
         notified, customer_id as "customerId", customer_name as "customerName",
         lead_id as "leadId", task_id as "taskId", created_by as "createdBy",
@@ -215,12 +225,14 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
             eventData.taskId || null,
             userId
         ]);
-        // Return event with properly formatted times
+        // Return event with properly formatted times (as ISO strings)
         const event = result.rows[0];
         return {
             ...event,
-            createdAt: event.createdAt ? event.createdAt.toString() : null,
-            updatedAt: event.updatedAt ? event.updatedAt.toString() : null
+            startTime: event.startTime instanceof Date ? event.startTime.toISOString() : event.startTime,
+            endTime: event.endTime instanceof Date ? event.endTime.toISOString() : event.endTime,
+            createdAt: event.createdAt instanceof Date ? event.createdAt.toISOString() : event.createdAt,
+            updatedAt: event.updatedAt instanceof Date ? event.updatedAt.toISOString() : event.updatedAt
         };
     }
     // Update event
@@ -282,13 +294,13 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
         }
         values.push(eventId, userId); // Add eventId and userId as last parameters
         const result = await query(`
-      UPDATE unified_events 
+      UPDATE unified_events
       SET ${setClause.join(', ')}
       WHERE id = $${paramIndex++} AND created_by = $${paramIndex++}
-      RETURNING 
+      RETURNING
         id, title, description, event_type as "eventType",
-TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice", is_active as "isActive",
         notified, customer_id as "customerId", customer_name as "customerName",
         lead_id as "leadId", task_id as "taskId", created_by as "createdBy",
@@ -297,12 +309,20 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
         if (result.rows.length === 0) {
             throw new Error('Event not found or access denied');
         }
-        return result.rows[0];
+        // Return event with properly formatted times (as ISO strings)
+        const event = result.rows[0];
+        return {
+            ...event,
+            startTime: event.startTime instanceof Date ? event.startTime.toISOString() : event.startTime,
+            endTime: event.endTime instanceof Date ? event.endTime.toISOString() : event.endTime,
+            createdAt: event.createdAt instanceof Date ? event.createdAt.toISOString() : event.createdAt,
+            updatedAt: event.updatedAt instanceof Date ? event.updatedAt.toISOString() : event.updatedAt
+        };
     }
     // Delete event
     static async deleteEvent(userId, eventId) {
         const result = await query(`
-      DELETE FROM unified_events 
+      DELETE FROM unified_events
       WHERE id = $1 AND created_by = $2
     `, [eventId, userId]);
         return result.rowCount > 0;
@@ -310,8 +330,8 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
     // Mark reminder as notified
     static async markAsNotified(userId, eventId) {
         const result = await query(`
-      UPDATE unified_events 
-      SET notified = true 
+      UPDATE unified_events
+      SET notified = true
       WHERE id = $1 AND created_by = $2 AND event_type = 'reminder'
     `, [eventId, userId]);
         return result.rowCount > 0;
@@ -319,13 +339,13 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
     // Get event by ID
     static async getEventById(userId, eventId) {
         const result = await query(`
-      SELECT 
+      SELECT
         id,
         title,
         description,
         event_type as "eventType",
-        TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "startTime",
-        TO_CHAR(end_time, 'YYYY-MM-DD"T"HH24:MI:SS') || '.000Z' as "endTime",
+        start_time as "startTime",
+        end_time as "endTime",
         advance_notice as "advanceNotice",
         is_active as "isActive",
         notified,
@@ -336,9 +356,20 @@ TO_CHAR(start_time, 'YYYY-MM-DD"T"HH24:MI:SS') as "startTime",
         created_by as "createdBy",
         created_at as "createdAt",
         updated_at as "updatedAt"
-      FROM unified_events 
+      FROM unified_events
       WHERE id = $1 AND created_by = $2
     `, [eventId, userId]);
-        return result.rows[0] || null;
+        if (result.rows.length === 0) {
+            return null;
+        }
+        // Return event with properly formatted times (as ISO strings)
+        const event = result.rows[0];
+        return {
+            ...event,
+            startTime: event.startTime instanceof Date ? event.startTime.toISOString() : event.startTime,
+            endTime: event.endTime instanceof Date ? event.endTime.toISOString() : event.endTime,
+            createdAt: event.createdAt instanceof Date ? event.createdAt.toISOString() : event.createdAt,
+            updatedAt: event.updatedAt instanceof Date ? event.updatedAt.toISOString() : event.updatedAt
+        };
     }
 }

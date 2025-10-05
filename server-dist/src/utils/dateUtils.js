@@ -41,17 +41,30 @@ export const createLocalDateTime = (dateStr, timeStr) => {
     return new Date(year, month - 1, day, hours, minutes);
 };
 /**
- * Create simple ISO string from date
+ * Create simple ISO string from date and time strings
  */
-export const createSimpleISOString = (date) => {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
-    return dateObj.toISOString();
+export const createSimpleISOString = (dateStr, timeStr) => {
+    // Create a local date without timezone conversion
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    // Create date in local timezone (Israel)
+    const localDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+    // Return as ISO string but treat it as local time
+    return `${dateStr}T${timeStr}:00`;
 };
 /**
  * Parse simple ISO string (handles both full ISO and simple date strings)
  */
 export const parseSimpleISOString = (dateStr) => {
-    // If it's already a full ISO string, parse it directly
+    // If it's a simple format like "2024-01-15T14:30:00"
+    if (dateStr.includes('T') && !dateStr.includes('Z') && !dateStr.includes('+')) {
+        const [datePart, timePart] = dateStr.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes, seconds] = timePart.split(':').map(Number);
+        // Create date in local timezone (Israel)
+        return new Date(year, month - 1, day, hours, minutes, seconds || 0, 0);
+    }
+    // If it's already a full ISO string with timezone, parse it directly
     if (dateStr.includes('T')) {
         return parseISO(dateStr);
     }
@@ -138,4 +151,35 @@ export const endOfDay = (date) => {
     const result = new Date(dateObj);
     result.setHours(23, 59, 59, 999);
     return result;
+};
+/**
+ * Format date-time for display (handles local timezone correctly)
+ */
+export const formatDateTimeForDisplay = (dateStr) => {
+    try {
+        const date = parseSimpleISOString(dateStr);
+        return format(date, 'dd/MM/yyyy HH:mm', { locale: he });
+    }
+    catch (error) {
+        console.error('Error formatting date for display:', error);
+        return 'תאריך לא תקין';
+    }
+};
+/**
+ * Create a date from date and time strings in local timezone
+ */
+export const createLocalDateFromStrings = (dateStr, timeStr) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    // Create date in local timezone (Israel)
+    return new Date(year, month - 1, day, hours, minutes, 0, 0);
+};
+/**
+ * Get current date and time in Israel timezone as strings
+ */
+export const getCurrentIsraelDateTime = () => {
+    const now = new Date();
+    const date = format(now, 'yyyy-MM-dd');
+    const time = format(now, 'HH:mm');
+    return { date, time };
 };

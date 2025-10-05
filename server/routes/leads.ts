@@ -159,7 +159,7 @@ router.get('/:id', authenticateToken, async (req: Request & {user?: any}, res: R
 });
 
 // Create new lead
-router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', authenticateToken, async (req: Request & {user?: any}, res: Response) => {
   try {
     const leadData = {
       name: req.body.name,
@@ -171,7 +171,7 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
       callback_date: req.body.callbackDate || req.body.callback_date,
       callback_time: req.body.callbackTime || req.body.callback_time,
       assigned_to: parseInt(req.body.assigned_to) || req.user.id,
-      client_id: req.user.client_id || null
+      client_id: req.user.client_id || undefined
     };
     
     const lead = await LeadModel.create(leadData);
@@ -231,7 +231,7 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
         };
         
         await UnifiedEventModel.createEventFromLead(req.user.id, eventData);
-        console.log(`✅ Created unified event for lead ${lead.id} - Israel time: ${israelDate.toLocaleString('he-IL')}, UTC: ${start_time}`);
+        console.log(`✅ Created unified event for lead ${lead.id} - Israel time: ${properIsraelDate.toLocaleString('he-IL')}, UTC: ${start_time}`);
       } catch (eventError) {
         console.error('❌ Error creating unified event for lead callback:', eventError);
         // Don't fail the lead creation if event creation fails
@@ -246,7 +246,7 @@ router.post('/', authenticateToken, async (req: AuthenticatedRequest, res: Respo
 });
 
 // Update lead
-router.put('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/:id', authenticateToken, async (req: Request & {user?: any}, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -388,7 +388,7 @@ router.put('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Res
 });
 
 // Update lead status
-router.patch('/:id/status', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.patch('/:id/status', authenticateToken, async (req: Request & {user?: any}, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -436,7 +436,7 @@ router.patch('/:id/status', authenticateToken, async (req: AuthenticatedRequest,
 });
 
 // Delete lead
-router.delete('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/:id', authenticateToken, async (req: Request & {user?: any}, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -739,7 +739,7 @@ router.post('/import/excel', authenticateToken, upload.single('file'), async (re
     const leadsDataWithUser = leadsData.map(lead => ({
       ...lead,
       assigned_to: req.user.id,
-      client_id: req.user.client_id || null
+      client_id: req.user.client_id || undefined
     }));
     const importedLeads = await LeadModel.createBulk(leadsDataWithUser);
 
