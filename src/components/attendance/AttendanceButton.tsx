@@ -273,12 +273,21 @@ const AttendanceButton: React.FC = () => {
 
             {/* החלון - fullscreen במובייל, מודל בדסקטופ */}
             <motion.div
+<<<<<<< HEAD
               initial={{ y: '100%', opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="fixed inset-0 md:relative md:inset-auto bg-white dark:bg-gray-900 md:max-w-5xl md:max-h-[85vh] md:rounded-2xl shadow-2xl border-0 md:border border-gray-200 dark:border-gray-700 overflow-auto flex flex-col z-[10000]"
               onClick={e => e.stopPropagation()}
+=======
+             initial={{ y: '100%', opacity: 0 }}
+             animate={{ y: 0, opacity: 1 }}
+             exit={{ y: '100%', opacity: 0 }}
+             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+             className="fixed inset-0 md:relative md:inset-auto bg-white dark:bg-gray-900 md:max-w-5xl md:max-h-[85vh] md:rounded-2xl shadow-2xl border-0 md:border border-gray-200 dark:border-gray-700 flex flex-col z-[10000] w-full h-full md:w-auto md:h-auto overflow-y-auto md:overflow-hidden"
+             onClick={e => e.stopPropagation()}
+>>>>>>> c643189306e9f35b529b551180d5488059cd9516
             >
               {/* כותרת החלון */}
               <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 px-4 md:px-6 py-4 md:py-4 flex justify-between items-center shadow-lg">
