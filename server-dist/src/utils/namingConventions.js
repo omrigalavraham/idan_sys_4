@@ -1,0 +1,164 @@
+/**
+ * Naming conventions utility
+ * Provides consistent naming patterns across the application
+ */
+// Database field naming (snake_case)
+export const DB_FIELDS = {
+    // User fields
+    USER_ID: 'user_id',
+    CREATED_BY: 'created_by',
+    UPDATED_AT: 'updated_at',
+    CREATED_AT: 'created_at',
+    DELETED_AT: 'deleted_at',
+    // Lead fields
+    CUSTOMER_ID: 'customer_id',
+    ASSIGNED_TO: 'assigned_to',
+    CLIENT_ID: 'client_id',
+    CALLBACK_DATE: 'callback_date',
+    CALLBACK_TIME: 'callback_time',
+    POTENTIAL_VALUE: 'potential_value',
+    LAST_CONTACT: 'last_contact',
+    CLOSING_DATE: 'closing_date',
+    // Customer fields
+    FULL_NAME: 'full_name',
+    COMPANY_NAME: 'company_name',
+    VAT_NUMBER: 'vat_number',
+    ASSIGNED_REP: 'assigned_rep',
+    PAYMENT_STATUS: 'payment_status',
+    BILLING_FREQUENCY: 'billing_frequency',
+    TOTAL_AMOUNT: 'total_amount',
+    START_DATE: 'start_date',
+    PAYMENT_PLAN: 'payment_plan',
+    // Task fields
+    DUE_DATE: 'due_date',
+    COMPLETED_AT: 'completed_at',
+    // Event fields
+    EVENT_TYPE: 'event_type',
+    START_TIME: 'start_time',
+    END_TIME: 'end_time',
+    ADVANCE_NOTICE: 'advance_notice',
+    IS_ACTIVE: 'is_active',
+    CUSTOMER_NAME: 'customer_name',
+    LEAD_ID: 'lead_id',
+    TASK_ID: 'task_id'
+};
+// Frontend field naming (camelCase)
+export const FRONTEND_FIELDS = {
+    // User fields
+    USER_ID: 'userId',
+    CREATED_BY: 'createdBy',
+    UPDATED_AT: 'updatedAt',
+    CREATED_AT: 'createdAt',
+    DELETED_AT: 'deletedAt',
+    // Lead fields
+    CUSTOMER_ID: 'customerId',
+    ASSIGNED_TO: 'assignedTo',
+    CLIENT_ID: 'clientId',
+    CALLBACK_DATE: 'callbackDate',
+    CALLBACK_TIME: 'callbackTime',
+    POTENTIAL_VALUE: 'potentialValue',
+    LAST_CONTACT: 'lastContact',
+    CLOSING_DATE: 'closingDate',
+    // Customer fields
+    FULL_NAME: 'fullName',
+    COMPANY_NAME: 'companyName',
+    VAT_NUMBER: 'vatNumber',
+    ASSIGNED_REP: 'assignedRep',
+    PAYMENT_STATUS: 'paymentStatus',
+    BILLING_FREQUENCY: 'billingFrequency',
+    TOTAL_AMOUNT: 'totalAmount',
+    START_DATE: 'startDate',
+    PAYMENT_PLAN: 'paymentPlan',
+    // Task fields
+    DUE_DATE: 'dueDate',
+    COMPLETED_AT: 'completedAt',
+    // Event fields
+    EVENT_TYPE: 'eventType',
+    START_TIME: 'startTime',
+    END_TIME: 'endTime',
+    ADVANCE_NOTICE: 'advanceNotice',
+    IS_ACTIVE: 'isActive',
+    CUSTOMER_NAME: 'customerName',
+    LEAD_ID: 'leadId',
+    TASK_ID: 'taskId'
+};
+/**
+ * Convert database field names to frontend field names
+ */
+export const dbToFrontend = (dbField) => {
+    const mapping = {
+        [DB_FIELDS.USER_ID]: FRONTEND_FIELDS.USER_ID,
+        [DB_FIELDS.CREATED_BY]: FRONTEND_FIELDS.CREATED_BY,
+        [DB_FIELDS.UPDATED_AT]: FRONTEND_FIELDS.UPDATED_AT,
+        [DB_FIELDS.CREATED_AT]: FRONTEND_FIELDS.CREATED_AT,
+        [DB_FIELDS.DELETED_AT]: FRONTEND_FIELDS.DELETED_AT,
+        [DB_FIELDS.CUSTOMER_ID]: FRONTEND_FIELDS.CUSTOMER_ID,
+        [DB_FIELDS.ASSIGNED_TO]: FRONTEND_FIELDS.ASSIGNED_TO,
+        [DB_FIELDS.CLIENT_ID]: FRONTEND_FIELDS.CLIENT_ID,
+        [DB_FIELDS.CALLBACK_DATE]: FRONTEND_FIELDS.CALLBACK_DATE,
+        [DB_FIELDS.CALLBACK_TIME]: FRONTEND_FIELDS.CALLBACK_TIME,
+        [DB_FIELDS.POTENTIAL_VALUE]: FRONTEND_FIELDS.POTENTIAL_VALUE,
+        [DB_FIELDS.LAST_CONTACT]: FRONTEND_FIELDS.LAST_CONTACT,
+        [DB_FIELDS.CLOSING_DATE]: FRONTEND_FIELDS.CLOSING_DATE,
+        [DB_FIELDS.FULL_NAME]: FRONTEND_FIELDS.FULL_NAME,
+        [DB_FIELDS.COMPANY_NAME]: FRONTEND_FIELDS.COMPANY_NAME,
+        [DB_FIELDS.VAT_NUMBER]: FRONTEND_FIELDS.VAT_NUMBER,
+        [DB_FIELDS.ASSIGNED_REP]: FRONTEND_FIELDS.ASSIGNED_REP,
+        [DB_FIELDS.PAYMENT_STATUS]: FRONTEND_FIELDS.PAYMENT_STATUS,
+        [DB_FIELDS.BILLING_FREQUENCY]: FRONTEND_FIELDS.BILLING_FREQUENCY,
+        [DB_FIELDS.TOTAL_AMOUNT]: FRONTEND_FIELDS.TOTAL_AMOUNT,
+        [DB_FIELDS.START_DATE]: FRONTEND_FIELDS.START_DATE,
+        [DB_FIELDS.PAYMENT_PLAN]: FRONTEND_FIELDS.PAYMENT_PLAN,
+        [DB_FIELDS.DUE_DATE]: FRONTEND_FIELDS.DUE_DATE,
+        [DB_FIELDS.COMPLETED_AT]: FRONTEND_FIELDS.COMPLETED_AT,
+        [DB_FIELDS.EVENT_TYPE]: FRONTEND_FIELDS.EVENT_TYPE,
+        [DB_FIELDS.START_TIME]: FRONTEND_FIELDS.START_TIME,
+        [DB_FIELDS.END_TIME]: FRONTEND_FIELDS.END_TIME,
+        [DB_FIELDS.ADVANCE_NOTICE]: FRONTEND_FIELDS.ADVANCE_NOTICE,
+        [DB_FIELDS.IS_ACTIVE]: FRONTEND_FIELDS.IS_ACTIVE,
+        [DB_FIELDS.CUSTOMER_NAME]: FRONTEND_FIELDS.CUSTOMER_NAME,
+        [DB_FIELDS.LEAD_ID]: FRONTEND_FIELDS.LEAD_ID,
+        [DB_FIELDS.TASK_ID]: FRONTEND_FIELDS.TASK_ID
+    };
+    return mapping[dbField] || dbField;
+};
+/**
+ * Convert frontend field names to database field names
+ */
+export const frontendToDb = (frontendField) => {
+    const mapping = {
+        [FRONTEND_FIELDS.USER_ID]: DB_FIELDS.USER_ID,
+        [FRONTEND_FIELDS.CREATED_BY]: DB_FIELDS.CREATED_BY,
+        [FRONTEND_FIELDS.UPDATED_AT]: DB_FIELDS.UPDATED_AT,
+        [FRONTEND_FIELDS.CREATED_AT]: DB_FIELDS.CREATED_AT,
+        [FRONTEND_FIELDS.DELETED_AT]: DB_FIELDS.DELETED_AT,
+        [FRONTEND_FIELDS.CUSTOMER_ID]: DB_FIELDS.CUSTOMER_ID,
+        [FRONTEND_FIELDS.ASSIGNED_TO]: DB_FIELDS.ASSIGNED_TO,
+        [FRONTEND_FIELDS.CLIENT_ID]: DB_FIELDS.CLIENT_ID,
+        [FRONTEND_FIELDS.CALLBACK_DATE]: DB_FIELDS.CALLBACK_DATE,
+        [FRONTEND_FIELDS.CALLBACK_TIME]: DB_FIELDS.CALLBACK_TIME,
+        [FRONTEND_FIELDS.POTENTIAL_VALUE]: DB_FIELDS.POTENTIAL_VALUE,
+        [FRONTEND_FIELDS.LAST_CONTACT]: DB_FIELDS.LAST_CONTACT,
+        [FRONTEND_FIELDS.CLOSING_DATE]: DB_FIELDS.CLOSING_DATE,
+        [FRONTEND_FIELDS.FULL_NAME]: DB_FIELDS.FULL_NAME,
+        [FRONTEND_FIELDS.COMPANY_NAME]: DB_FIELDS.COMPANY_NAME,
+        [FRONTEND_FIELDS.VAT_NUMBER]: DB_FIELDS.VAT_NUMBER,
+        [FRONTEND_FIELDS.ASSIGNED_REP]: DB_FIELDS.ASSIGNED_REP,
+        [FRONTEND_FIELDS.PAYMENT_STATUS]: DB_FIELDS.PAYMENT_STATUS,
+        [FRONTEND_FIELDS.BILLING_FREQUENCY]: DB_FIELDS.BILLING_FREQUENCY,
+        [FRONTEND_FIELDS.TOTAL_AMOUNT]: DB_FIELDS.TOTAL_AMOUNT,
+        [FRONTEND_FIELDS.START_DATE]: DB_FIELDS.START_DATE,
+        [FRONTEND_FIELDS.PAYMENT_PLAN]: DB_FIELDS.PAYMENT_PLAN,
+        [FRONTEND_FIELDS.DUE_DATE]: DB_FIELDS.DUE_DATE,
+        [FRONTEND_FIELDS.COMPLETED_AT]: DB_FIELDS.COMPLETED_AT,
+        [FRONTEND_FIELDS.EVENT_TYPE]: DB_FIELDS.EVENT_TYPE,
+        [FRONTEND_FIELDS.START_TIME]: DB_FIELDS.START_TIME,
+        [FRONTEND_FIELDS.END_TIME]: DB_FIELDS.END_TIME,
+        [FRONTEND_FIELDS.ADVANCE_NOTICE]: DB_FIELDS.ADVANCE_NOTICE,
+        [FRONTEND_FIELDS.IS_ACTIVE]: DB_FIELDS.IS_ACTIVE,
+        [FRONTEND_FIELDS.CUSTOMER_NAME]: DB_FIELDS.CUSTOMER_NAME,
+        [FRONTEND_FIELDS.LEAD_ID]: DB_FIELDS.LEAD_ID,
+        [FRONTEND_FIELDS.TASK_ID]: DB_FIELDS.TASK_ID
+    };
+    return mapping[frontendField] || frontendField;
+};
