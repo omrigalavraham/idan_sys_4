@@ -241,7 +241,12 @@ const AttendanceButton: React.FC = () => {
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          setShowModal(true);
+          if (user?.id) {
+            fetchUserRecords(user.id);
+          }
+        }}
         className={`w-10 h-10 rounded-xl shadow-md flex items-center justify-center haptic-light ${
           currentSession
             ? 'bg-gradient-to-br from-red-500 to-red-600 text-white'
@@ -272,7 +277,7 @@ const AttendanceButton: React.FC = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-0 md:relative md:inset-auto bg-white dark:bg-gray-900 md:max-w-5xl md:max-h-[85vh] md:rounded-2xl shadow-2xl border-0 md:border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col z-[10000]"
+              className="fixed inset-0 md:relative md:inset-auto bg-white dark:bg-gray-900 md:max-w-5xl md:max-h-[85vh] md:rounded-2xl shadow-2xl border-0 md:border border-gray-200 dark:border-gray-700 overflow-auto flex flex-col z-[10000]"
               onClick={e => e.stopPropagation()}
             >
               {/* כותרת החלון */}
